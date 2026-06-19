@@ -1480,67 +1480,10 @@ appear in all capitals, as shown here.<a href="#section-1.1-1" class="pilcrow">Â
 <p id="section-4.1-1">Consider a multihomed stub AS with two border routers (BR1 and BR2), each connected to a different upstream ISP (Figure 1). Internally, the AS consists of three campus networks, each with an internal core router (IR1, IR2, IR3).<a href="#section-4.1-1" class="pilcrow">Â¶</a></p>
 <span id="name-figure-1-as-stub-multihomed"></span><div id="fig-stub">
 <figure id="figure-1">
-          <div class="alignLeft art-image/svg art-text artwork" id="section-4.1-2.1">
-<pre>
-&lt;svg width="21cm" height="22cm" viewBox="609 170 408 421" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
-  &lt;g id="Background"&gt;
-    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="893.4" y="366.96"&gt;
-      &lt;tspan x="893.4" y="366.96"&gt;BR2&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;g&gt;
-      &lt;rect style="fill: #ffffff; fill-opacity: 1; stroke: none" x="721.6" y="181.747" width="49.8" height="26.7287"/&gt;
-      &lt;text font-size="22.9616" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="721.6" y="203.06"&gt;
-        &lt;tspan x="721.6" y="203.06"&gt;ISP1&lt;/tspan&gt;
-      &lt;/text&gt;
-    &lt;/g&gt;
-    &lt;text font-size="22.9616" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="609.6" y="407.614"&gt;
-      &lt;tspan x="609.6" y="407.614"&gt;STUB&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke-dasharray: 2; stroke: #000000" x1="750" y1="230" x2="750.986" y2="343.994"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke-dasharray: 2; stroke: #000000" x1="918" y1="228" x2="916.508" y2="342.194"/&gt;
-    &lt;text font-size="14.6078" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="705" y="267"&gt;
-      &lt;tspan x="705" y="267"&gt;Ebgp&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;text font-size="14.6078" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="927.6" y="269.86"&gt;
-      &lt;tspan x="927.6" y="269.86"&gt;Ebgp&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="732" y1="379" x2="635" y2="490"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="927" y1="379" x2="987.514" y2="490.576"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="754" y1="384" x2="815" y2="558"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="905" y1="384" x2="834.69" y2="560.01"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="777.444" y1="379.61" x2="971.622" y2="494.314"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="888.478" y1="376.494" x2="671" y2="490"/&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="698" y="172" width="106" height="49" rx="0" ry="0"/&gt;
-    &lt;g&gt;
-      &lt;rect style="fill: #ffffff; fill-opacity: 1; stroke: none" x="888.813" y="179.434" width="49.8" height="26.7287"/&gt;
-      &lt;text font-size="22.9616" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="888.813" y="200.747"&gt;
-        &lt;tspan x="888.813" y="200.747"&gt;ISP2&lt;/tspan&gt;
-      &lt;/text&gt;
-    &lt;/g&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="861.912" y="172.375" width="106" height="49" rx="0" ry="0"/&gt;
-    &lt;text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="914.912" y="196.875"&gt;
-      &lt;tspan x="914.912" y="196.875"&gt;&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="882" y="347" width="63" height="29" rx="0" ry="0"/&gt;
-    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="731" y="367.26"&gt;
-      &lt;tspan x="731" y="367.26"&gt;BR1&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="719.6" y="347.3" width="63" height="29" rx="0" ry="0"/&gt;
-    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="809.6" y="581.56"&gt;
-      &lt;tspan x="809.6" y="581.56"&gt;IR2&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="798.2" y="561.6" width="63" height="29" rx="0" ry="0"/&gt;
-    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="634.2" y="513.86"&gt;
-      &lt;tspan x="634.2" y="513.86"&gt;IR1&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="622.8" y="493.9" width="63" height="29" rx="0" ry="0"/&gt;
-    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="964.8" y="516.16"&gt;
-      &lt;tspan x="964.8" y="516.16"&gt;IR3&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="953.4" y="496.2" width="63" height="29" rx="0" ry="0"/&gt;
-  &lt;/g&gt;
-&lt;/svg&gt;
-</pre>
+       
+
+<div class="alignLeft artwork">
+    <img src="figures/i-Draft-nofullmesh1(validated).svg" alt="Figure 1: AS stub multihomed without an iBGP full mesh">
 </div>
 <figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
 <a href="#name-figure-1-as-stub-multihomed" class="selfRef">Figure 1: AS stub multihomed without an iBGP full mesh</a>
@@ -1582,88 +1525,17 @@ appear in all capitals, as shown here.<a href="#section-1.1-1" class="pilcrow">Â
         </ul>
 <span id="name-figure-2-edge-isp-without-a"></span><div id="fig-edge">
 <figure id="figure-2">
-          <div class="alignLeft art-image/svg+xml art-text artwork" id="section-4.2-3.1">
-<pre>
-
-   &lt;svg width="29cm" height="22cm" viewBox="399 170 570 421" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
-  &lt;g id="Background"&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="861.912" y="173.988" width="106" height="49" rx="0" ry="0"/&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="698" y="172" width="106" height="49" rx="0" ry="0"/&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="684.037" y="513.287" width="63" height="29" rx="0" ry="0"/&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="903.4" y="514.2" width="63" height="29" rx="0" ry="0"/&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="798.2" y="561.6" width="63" height="29" rx="0" ry="0"/&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="882" y="347" width="63" height="29" rx="0" ry="0"/&gt;
-    &lt;text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="1367.24" y="275.322"&gt;
-      &lt;tspan x="1367.24" y="275.322"&gt;&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;g&gt;
-      &lt;rect style="fill: #ffffff; fill-opacity: 1; stroke: none" x="737.6" y="181.747" width="28.65" height="26.7287"/&gt;
-      &lt;text font-size="22.9616" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="737.6" y="203.06"&gt;
-        &lt;tspan x="737.6" y="203.06"&gt;T1&lt;/tspan&gt;
-      &lt;/text&gt;
-    &lt;/g&gt;
-    &lt;text font-size="22.9616" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="650.6" y="381.614"&gt;
-      &lt;tspan x="650.6" y="381.614"&gt;ISP&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke-dasharray: 2; stroke: #000000" x1="750" y1="230" x2="750.986" y2="343.994"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke-dasharray: 2; stroke: #000000" x1="918" y1="228" x2="916.508" y2="342.194"/&gt;
-    &lt;text font-size="14.6078" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="705" y="267"&gt;
-      &lt;tspan x="705" y="267"&gt;Ebgp&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;text font-size="14.6078" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="927.6" y="269.86"&gt;
-      &lt;tspan x="927.6" y="269.86"&gt;Ebgp&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="732" y1="379" x2="731" y2="509"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="927" y1="379" x2="927" y2="508"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="753.462" y1="380.237" x2="823.462" y2="555.237"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="908.664" y1="379.069" x2="834.69" y2="560.01"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="777.444" y1="379.61" x2="909" y2="509"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="888.478" y1="376.494" x2="748" y2="508"/&gt;
-    &lt;g&gt;
-      &lt;rect style="fill: #ffffff; fill-opacity: 1; stroke: none" x="905.775" y="183.087" width="28.65" height="26.7287"/&gt;
-      &lt;text font-size="22.9616" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="905.775" y="204.4"&gt;
-        &lt;tspan x="905.775" y="204.4"&gt;T2&lt;/tspan&gt;
-      &lt;/text&gt;
-    &lt;/g&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="721.75" y="344.075" width="63" height="29" rx="0" ry="0"/&gt;
-    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="736.913" y="362.422"&gt;
-      &lt;tspan x="736.913" y="362.422"&gt;Up1&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="892.6" y="367.06"&gt;
-      &lt;tspan x="892.6" y="367.06"&gt;Up2&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="803.6" y="580.06"&gt;
-      &lt;tspan x="803.6" y="580.06"&gt;PoP2&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="689.362" y="533.822"&gt;
-      &lt;tspan x="689.362" y="533.822"&gt;PoP1&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="907.6" y="533.56"&gt;
-      &lt;tspan x="907.6" y="533.56"&gt;PoP3&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="621.6" y="411.3" width="63" height="29" rx="0" ry="0"/&gt;
-    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="648.1" y="430.8"&gt;
-      &lt;tspan x="648.1" y="430.8"&gt;P&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="400.6" y="413.3" width="63" height="29" rx="0" ry="0"/&gt;
-    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="419.1" y="432.8"&gt;
-      &lt;tspan x="419.1" y="432.8"&gt;IXP&lt;/tspan&gt;
-    &lt;/text&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="688.608" y1="435.308" x2="718" y2="510"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="691.208" y1="425.608" x2="812" y2="559"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="689" y1="416" x2="898.808" y2="517.908"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="898" y1="529" x2="751.8" y2="529.4"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="723.008" y1="548.508" x2="793" y2="581"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="933.608" y1="546.808" x2="864" y2="583"/&gt;
-    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke-dasharray: 4; stroke: #000000" x1="620.6" y1="425.8" x2="466" y2="427"/&gt;
-    &lt;text font-size="14.6078" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="510" y="418"&gt;
-      &lt;tspan x="510" y="418"&gt;n x Ebgp&lt;/tspan&gt;
-    &lt;/text&gt;
-  &lt;/g&gt;
-&lt;/svg&gt;
-
-</pre>
+      
+  
+<div class="alignLeft artwork">
+    <img src="figures/i-Draft-nofullmesh2(validated).svg" alt="Figure 2: Edge ISP without an iBGP full mesh">
 </div>
+
+
+  </figure>
+</div>
+
+  
 <figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
 <a href="#name-figure-2-edge-isp-without-a" class="selfRef">Figure 2: Edge ISP without an iBGP full mesh</a>
           </figcaption></figure>
