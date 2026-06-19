@@ -30,13 +30,13 @@ This repository allows reviewers and implementers to:
 ```
 ibgp-no-full-mesh/
 │
-├── draft-rivadeneyra-no-ibgp-full-mesh-00.xml   # Source XML of the draft
+├── draft-rivadeneyra-no-ibgp-full-mesh-00.xml   # Source XML of the draft. Images in source svg.
 │
-├── draft-rivadeneyra-no-ibgp-full-mesh-00.html   # HTML version of the draft, automatically created from .xml
+├── draft-rivadeneyra-no-ibgp-full-mesh-00.html   # HTML version of the draft, including rendered images.
 │
-├── draft-rivadeneyra-no-ibgp-full-mesh-00.pdf   # PDF version of the draft, automatically created from .xml
+├── draft-rivadeneyra-no-ibgp-full-mesh-00.pdf   # PDF version of the draft, including rendered images.
 │
-└── figures/                                      # All SVG figures used in the draft
+└── figures/                                      # Original SVG figures used in the draft
 ```
 All SVG files are self-contained and standards‑compliant.
 
