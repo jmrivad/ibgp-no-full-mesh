@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>On iBGP Full-Mesh Requirements</title>
+<meta content="Jose Maria Rivadeneyra" name="author">
+<meta content="
+       A common misconception within the Internet community is that internal BGP (iBGP) strictly requires a full mesh or alternatives such as Route Reflectors. In reality, a full mesh is an architectural design choice driven by route visibility needs, rather than a protocol mandate. This document analyzes the historical origins of this misunderstanding and clarifies the specific scenarios—multihomed stub Autonomous Systems (ASes)— where an iBGP full mesh is unnecessary and operationally undesirable. 
+    " name="description">
+<meta content="xml2rfc 3.34.0" name="generator">
+<meta content="ibgp" name="keyword">
+<meta content="full-mesh" name="keyword">
+<meta content="stub-as" name="keyword">
+<meta content="draft-rivadeneyra-no-ibgp-full-mesh-00" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.34.0
+    Python 3.12.3
+    ConfigArgParse 1.7.5
+    google-i18n-address 3.1.1
+    intervaltree 3.2.1
+    Jinja2 3.1.6
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.10.0
+    pycountry 26.2.16
+    PyYAML 6.0.3
+    requests 2.34.2
+    wcwidth 0.7.0
+    weasyprint 69.0
+-->
+<link href="draft-rivadeneyra-no-ibgp-full-mesh-00.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">/*
+
+  NOTE: Changes at the bottom of this file overrides some earlier settings.
+
+  Once the style has stabilized and has been adopted as an official RFC style,
+  this can be consolidated so that style settings occur only in one place, but
+  for now the contents of this file consists first of the initial CSS work as
+  provided to the RFC Formatter (xml2rfc) work, followed by itemized and
+  commented changes found necessary during the development of the v3
+  formatters.
+
+*/
+
+/* fonts */
+@import url('https://static.ietf.org/fonts/noto-sans/import.css'); /* Sans-serif */
+@import url('https://static.ietf.org/fonts/noto-serif/import.css'); /* Serif (print) */
+@import url('https://static.ietf.org/fonts/roboto-mono/import.css'); /* Monospace */
+
+:root {
+  --font-sans: 'Noto Sans', Arial, Helvetica, sans-serif;
+  --font-serif: 'Noto Serif', 'Times', 'Times New Roman', serif;
+  --font-mono: 'Roboto Mono', Courier, 'Courier New', monospace;
+}
+
+@viewport {
+  zoom: 1.0;
+}
+@-ms-viewport {
+  width: extend-to-zoom;
+  zoom: 1.0;
+}
+/* general and mobile first */
+html {
+}
+body {
+  max-width: 90%;
+  margin: 1.5em auto;
+  color: #222;
+  background-color: #fff;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  overflow-wrap: break-word;
+}
+.ears {
+  display: none;
+}
+
+/* headings */
+#title, h1, h2, h3, h4, h5, h6 {
+  margin: 1em 0 0.5em;
+  font-weight: bold;
+  line-height: 1.3;
+}
+#title {
+  clear: both;
+  border-bottom: 1px solid #ddd;
+  margin: 0 0 0.5em 0;
+  padding: 1em 0 0.5em;
+}
+.author {
+  padding-bottom: 4px;
+}
+h1 {
+  font-size: 26px;
+  margin: 1em 0;
+}
+h2 {
+  font-size: 22px;
+  margin-top: -20px;  /* provide offset for in-page anchors */
+  padding-top: 33px;
+}
+h3 {
+  font-size: 18px;
+  margin-top: -36px;  /* provide offset for in-page anchors */
+  padding-top: 42px;
+}
+h4 {
+  font-size: 16px;
+  margin-top: -36px;  /* provide offset for in-page anchors */
+  padding-top: 42px;
+}
+h5, h6 {
+  font-size: 14px;
+}
+#n-copyright-notice {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 1em;
+  margin-bottom: 1em;
+}
+/* general structure */
+p {
+  padding: 0;
+  margin: 0 0 1em 0;
+  text-align: left;
+}
+div, span {
+  position: relative;
+}
+div {
+  margin: 0;
+}
+.alignRight.art-text {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  padding: 1em 1em 0;
+  margin-bottom: 1.5em;
+}
+.alignRight.art-text pre {
+  padding: 0;
+}
+.alignRight {
+  margin: 1em 0;
+}
+.alignRight > *:first-child {
+  border: none;
+  margin: 0;
+  float: right;
+  clear: both;
+}
+.alignRight > *:nth-child(2) {
+  clear: both;
+  display: block;
+  border: none;
+}
+svg {
+  display: block;
+}
+@media print {
+  svg {
+    max-height: 850px;
+    max-width: 660px;
+  }
+}
+svg[font-family~="serif" i], svg [font-family~="serif" i] {
+  font-family: var(--font-serif);
+}
+svg[font-family~="sans-serif" i], svg [font-family~="sans-serif" i] {
+  font-family: var(--font-sans);
+}
+svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
+  font-family: var(--font-mono);
+}
+.alignCenter.art-text {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  padding: 1em 1em 0;
+  margin-bottom: 1.5em;
+}
+.alignCenter.art-text pre {
+  padding: 0;
+}
+.alignCenter {
+  margin: 1em 0;
+}
+.alignCenter > *:first-child {
+  display: table;
+  border: none;
+  margin: 0 auto;
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 1em 2em;
+}
+ol ol, ul ul, ol ul, ul ol {
+  margin-left: 1em;
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+.ulCompact li {
+  margin: 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+}
+ul.empty li, .ulEmpty li {
+  margin-top: 0.5em;
+}
+ul.ulBare, li.ulBare {
+  margin-left: 0em !important;
+}
+ul.compact, .ulCompact,
+ol.compact, .olCompact {
+  line-height: 100%;
+  margin: 0 0 0 2em;
+}
+
+/* definition lists */
+dl {
+}
+dl > dt {
+  float: left;
+  margin-right: 1em;
+}
+/* 
+dl.nohang > dt {
+  float: none;
+}
+*/
+dl > dd {
+  margin-bottom: .8em;
+  min-height: 1.3em;
+}
+dl.compact > dd, .dlCompact > dd {
+  margin-bottom: 0em;
+}
+dl > dd > dl {
+  margin-top: 0.5em;
+  margin-bottom: 0em;
+}
+
+/* links */
+a {
+  text-decoration: none;
+}
+a[href] {
+  color: #22e; /* Arlen: WCAG 2019 */
+}
+a[href]:hover {
+  background-color: #f2f2f2;
+}
+figcaption a[href],
+a[href].selfRef {
+  color: #222;
+}
+/* XXX probably not this:
+a.selfRef:hover {
+  background-color: transparent;
+  cursor: default;
+} */
+
+/* Figures */
+tt, code, pre {
+  background-color: #f9f9f9;
+  font-family: var(--font-mono);
+}
+pre {
+  border: 1px solid #eee;
+  margin: 0;
+  padding: 1em;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0;
+}
+figure blockquote {
+  margin: 0.8em 0.4em 0.4em;
+}
+figcaption {
+  font-style: italic;
+  margin: 0 0 1em 0;
+}
+@media screen {
+  pre {
+    overflow-x: auto;
+    max-width: 100%;
+    max-width: calc(100% - 22px);
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 1.2em 2em;
+}
+blockquote {
+  background-color: #f9f9f9;
+  color: #111; /* Arlen: WCAG 2019 */
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  margin: 1em 0;
+}
+blockquote > *:last-child {
+  margin-bottom: 0;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+.xref {
+  overflow-wrap: normal;
+}
+
+/* tables */
+table {
+  width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  border: 1px solid #eee;
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.5em 0.75em;
+}
+th {
+  text-align: left;
+  background-color: #e9e9e9;
+}
+tr:nth-child(2n+1) > td {
+  background-color: #f5f5f5;
+}
+table caption {
+  font-style: italic;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+table p {
+  /* XXX to avoid bottom margin on table row signifiers. If paragraphs should
+     be allowed within tables more generally, it would be far better to select on a class. */
+  margin: 0;
+}
+
+/* pilcrow */
+a.pilcrow {
+  color: #666; /* Arlen: AHDJ 2019 */
+  text-decoration: none;
+  visibility: hidden;
+  user-select: none;
+  -ms-user-select: none;
+  -o-user-select:none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+@media screen {
+  aside:hover > a.pilcrow,
+  p:hover > a.pilcrow,
+  blockquote:hover > a.pilcrow,
+  div:hover > a.pilcrow,
+  li:hover > a.pilcrow,
+  pre:hover > a.pilcrow {
+    visibility: visible;
+  }
+  a.pilcrow:hover {
+    background-color: transparent;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid #eee;
+}
+.bcp14 {
+  font-variant: small-caps;
+}
+
+.role {
+  font-variant: all-small-caps;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: 0.9em;
+}
+#identifiers dt {
+  width: 3em;
+  clear: left;
+}
+#identifiers dd {
+  float: left;
+  margin-bottom: 0;
+}
+/* Fix PDF info block run off issue */
+@media print {
+  #identifiers dd {
+    max-width: 100%;
+  }
+}
+#identifiers .authors .author {
+  display: inline-block;
+  margin-right: 1.5em;
+}
+#identifiers .authors .org {
+  font-style: italic;
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #666; /* Arlen: WCAG 2019 */
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+}
+.docInfo .prepared {
+  float: left;
+}
+.docInfo .prepared {
+  float: right;
+}
+
+/* table of contents */
+#toc  {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+}
+nav.toc ul {
+  margin: 0 0.5em 0 0;
+  padding: 0;
+  list-style: none;
+}
+nav.toc li {
+  line-height: 1.3em;
+  margin: 0.75em 0;
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+/* references */
+.references dt {
+  text-align: right;
+  font-weight: bold;
+  min-width: 7em;
+}
+.references dd {
+  margin-left: 8em;
+  overflow: auto;
+}
+
+.refInstance {
+  margin-bottom: 1.25em;
+}
+
+.refSubseries {
+  margin-bottom: 1.25em;
+}
+
+.references .ascii {
+  margin-bottom: 0.25em;
+}
+
+/* index */
+.index ul {
+  margin: 0 0 0 1em;
+  padding: 0;
+  list-style: none;
+}
+.index ul ul {
+  margin: 0;
+}
+.index li {
+  margin: 0;
+  text-indent: -2em;
+  padding-left: 2em;
+  padding-bottom: 5px;
+}
+.indexIndex {
+  margin: 0.5em 0 1em;
+}
+.index a {
+  font-weight: 700;
+}
+/* make the index two-column on all but the smallest screens */
+@media (min-width: 600px) {
+  .index ul {
+    -moz-column-count: 2;
+    -moz-column-gap: 20px;
+  }
+  .index ul ul {
+    -moz-column-count: 1;
+    -moz-column-gap: 0;
+  }
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  margin: 1em 0;
+}
+
+address.vcard .nameRole {
+  font-weight: 700;
+  margin-left: 0;
+}
+address.vcard .label {
+  font-family: var(--font-sans);
+  margin: 0.5em 0;
+}
+address.vcard .type {
+  display: none;
+}
+.alternative-contact {
+  margin: 1.5em 0 1em;
+}
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+
+/* temporary notes */
+.rfcEditorRemove::before {
+  position: absolute;
+  top: 0.2em;
+  right: 0.2em;
+  padding: 0.2em;
+  content: "The RFC Editor will remove this note";
+  color: #9e2a00; /* Arlen: WCAG 2019 */
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+}
+.rfcEditorRemove {
+  position: relative;
+  padding-top: 1.8em;
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+  border-radius: 3px;
+}
+.cref {
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+/* alternative layout for smaller screens */
+@media screen and (max-width: 1023px) {
+  body {
+    padding-top: 2em;
+  }
+  #title {
+    padding: 1em 0;
+  }
+  h1 {
+    font-size: 24px;
+  }
+  h2 {
+    font-size: 20px;
+    margin-top: -18px;  /* provide offset for in-page anchors */
+    padding-top: 38px;
+  }
+  #identifiers dd {
+    max-width: 60%;
+  }
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    background-color: inherit;
+    border-bottom: 1px solid #ccc;
+  }
+  #toc h2 {
+    margin: -1px 0 0 0;
+    padding: 4px 0 4px 6px;
+    padding-right: 1em;
+    min-width: 190px;
+    font-size: 1.1em;
+    text-align: right;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+  #toc h2::before { /* css hamburger */
+    float: right;
+    position: relative;
+    width: 1em;
+    height: 1px;
+    left: -164px;
+    margin: 6px 0 0 0;
+    background: white none repeat scroll 0 0;
+    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+    content: "";
+  }
+  #toc nav {
+    display: none;
+    padding: 0.5em 1em 1em;
+    overflow: auto;
+    height: calc(100vh - 48px);
+    border-left: 1px solid #ddd;
+  }
+}
+
+/* alternative layout for wide screens */
+@media screen and (min-width: 1024px) {
+  body {
+    max-width: 724px;
+    margin: 42px auto;
+    padding-left: 1.5em;
+    padding-right: 29em;
+  }
+  #toc {
+    position: fixed;
+    top: 42px;
+    right: 42px;
+    width: 25%;
+    margin: 0;
+    padding: 0 1em;
+    z-index: 1;
+  }
+  #toc h2 {
+    border-top: none;
+    border-bottom: 1px solid #ddd;
+    font-size: 1em;
+    font-weight: normal;
+    margin: 0;
+    padding: 0.25em 1em 1em 0;
+  }
+  #toc nav {
+    display: block;
+    height: calc(90vh - 84px);
+    bottom: 0;
+    padding: 0.5em 0 0;
+    overflow: auto;
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc, #n-introduction {
+    page-break-before: always;
+  }
+  #toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  figure, pre {
+    page-break-inside: avoid;
+  }
+  figure {
+    overflow: scroll;
+  }
+  .breakable pre {
+    break-inside: auto;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  h2+*, h3+*, h4+*, h5+*, h6+* {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+/* This is commented out here, as the string-set: doesn't
+   pass W3C validation currently */
+/*
+.ears thead .left {
+  string-set: ears-top-left content();
+}
+
+.ears thead .center {
+  string-set: ears-top-center content();
+}
+
+.ears thead .right {
+  string-set: ears-top-right content();
+}
+
+.ears tfoot .left {
+  string-set: ears-bottom-left content();
+}
+
+.ears tfoot .center {
+  string-set: ears-bottom-center content();
+}
+
+.ears tfoot .right {
+  string-set: ears-bottom-right content();
+}
+*/
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+  /* The following is commented out here, but set appropriately by in code, as
+     the content depends on the document */
+  /*
+  @top-left {
+    content: 'Internet-Draft';
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-left {
+    content: string(ears-top-left);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-center {
+    content: string(ears-top-center);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-right {
+    content: string(ears-top-right);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @bottom-left {
+    content: string(ears-bottom-left);
+    vertical-align: top;
+    border-top: solid 1px #ccc;
+  }
+  @bottom-center {
+    content: string(ears-bottom-center);
+    vertical-align: top;
+    border-top: solid 1px #ccc;
+  }
+  @bottom-right {
+      content: '[Page ' counter(page) ']';
+      vertical-align: top;
+      border-top: solid 1px #ccc;
+  }
+  */
+
+}
+
+/* Changes introduced to fix issues found during implementation */
+/* Make sure links are clickable even if overlapped by following H* */
+a {
+  z-index: 2;
+}
+/* Separate body from document info even without intervening H1 */
+section {
+  clear: both;
+}
+
+
+/* Top align author divs, to avoid names without organization dropping level with org names */
+.author {
+  vertical-align: top;
+}
+
+/* Leave room in document info to show Internet-Draft on one line */
+#identifiers dt {
+  width: 8em;
+}
+
+/* Don't waste quite as much whitespace between label and value in doc info */
+#identifiers dd {
+  margin-left: 1em;
+}
+
+/* Give floating toc a background color (needed when it's a div inside section */
+#toc {
+  background-color: white;
+}
+
+/* Make the collapsed ToC header render white on gray also when it's a link */
+@media screen and (max-width: 1023px) {
+  #toc h2 a,
+  #toc h2 a:link,
+  #toc h2 a:focus,
+  #toc h2 a:hover,
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+}
+
+/* Give the bottom of the ToC some whitespace */
+@media screen and (min-width: 1024px) {
+  #toc {
+    padding: 0 0 1em 1em;
+  }
+}
+
+/* Style section numbers with more space between number and title */
+.section-number {
+  padding-right: 0.5em;
+}
+
+/* prevent monospace from becoming overly large */
+tt, code, pre {
+  font-size: 95%;
+}
+
+/* Fix the height/width aspect for ascii art*/
+.sourcecode pre,
+.art-text pre {
+  line-height: 1.12;
+}
+
+
+/* Add styling for a link in the ToC that points to the top of the document */
+a.toplink {
+  float: right;
+  margin-right: 0.5em;
+}
+
+/* Fix the dl styling to match the RFC 7992 attributes */
+dl > dt,
+dl.dlParallel > dt {
+  float: left;
+  margin-right: 1em;
+}
+dl.dlNewline > dt {
+  float: none;
+}
+
+/* Provide styling for table cell text alignment */
+table td.text-left,
+table th.text-left {
+  text-align: left;
+}
+table td.text-center,
+table th.text-center {
+  text-align: center;
+}
+table td.text-right,
+table th.text-right {
+  text-align: right;
+}
+
+/* Make the alternative author contact information look less like just another
+   author, and group it closer with the primary author contact information */
+.alternative-contact {
+  margin: 0.5em 0 0.25em 0;
+}
+address .non-ascii {
+  margin: 0 0 0 2em;
+}
+
+/* With it being possible to set tables with alignment
+  left, center, and right, { width: 100%; } does not make sense */
+table {
+  width: auto;
+}
+
+/* Avoid reference text that sits in a block with very wide left margin,
+   because of a long floating dt label.*/
+.references dd {
+  overflow: visible;
+}
+
+/* Control caption placement */
+caption {
+  caption-side: bottom;
+}
+
+/* Limit the width of the author address vcard, so names in right-to-left
+   script don't end up on the other side of the page. */
+
+address.vcard {
+  max-width: 30em;
+  margin-right: auto;
+}
+
+/* For address alignment dependent on LTR or RTL scripts */
+address div.left {
+  text-align: left;
+}
+address div.right {
+  text-align: right;
+}
+
+/* Provide table alignment support.  We can't use the alignX classes above
+   since they do unwanted things with caption and other styling. */
+table.right {
+ margin-left: auto;
+ margin-right: 0;
+}
+table.center {
+ margin-left: auto;
+ margin-right: auto;
+}
+table.left {
+ margin-left: 0;
+ margin-right: auto;
+}
+
+/* Give the table caption label the same styling as the figcaption */
+caption a[href] {
+  color: #222;
+}
+
+@media print {
+  .toplink {
+    display: none;
+  }
+
+  /* avoid overwriting the top border line with the ToC header */
+  #toc {
+    padding-top: 1px;
+  }
+
+  /* Avoid page breaks inside dl and author address entries */
+  .vcard {
+    page-break-inside: avoid;
+  }
+
+}
+/* Tweak the bcp14 keyword presentation */
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+/* Tweak the invisible space above H* in order not to overlay links in text above */
+ h2 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 31px;
+ }
+ h3 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 24px;
+ }
+ h4 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 24px;
+ }
+/* Float artwork pilcrow to the right */
+@media screen {
+  .artwork a.pilcrow {
+    display: block;
+    line-height: 0.7;
+    margin-top: 0.15em;
+  }
+}
+/* Make pilcrows on dd visible */
+@media screen {
+  dd:hover > a.pilcrow {
+    visibility: visible;
+  }
+}
+/* Make the placement of figcaption match that of a table's caption
+   by removing the figure's added bottom margin */
+.alignLeft.art-text,
+.alignCenter.art-text,
+.alignRight.art-text {
+   margin-bottom: 0;
+}
+.alignLeft,
+.alignCenter,
+.alignRight {
+  margin: 1em 0 0 0;
+}
+/* In print, the pilcrow won't show on hover, so prevent it from taking up space,
+   possibly even requiring a new line */
+@media print {
+  a.pilcrow {
+    display: none;
+  }
+}
+/* Styling for the external metadata */
+div#external-metadata {
+  background-color: #eee;
+  padding: 0.5em;
+  margin-bottom: 0.5em;
+  display: none;
+}
+div#internal-metadata {
+  padding: 0.5em;                       /* to match the external-metadata padding */
+}
+/* Styling for title RFC Number */
+h1#rfcnum {
+  clear: both;
+  margin: 0 0 -1em;
+  padding: 1em 0 0 0;
+}
+/* Make .olPercent look the same as <ol><li> */
+dl.olPercent > dd {
+  margin-bottom: 0.25em;
+  min-height: initial;
+}
+/* Give aside some styling to set it apart */
+aside {
+  border-left: 1px solid #ddd;
+  margin: 1em 0 1em 2em;
+  padding: 0.2em 2em;
+}
+aside > dl,
+aside > ol,
+aside > ul,
+aside > table,
+aside > p {
+  margin-bottom: 0.5em;
+}
+/* Additional page break settings */
+@media print {
+  figcaption, table caption {
+    page-break-before: avoid;
+  }
+}
+/* Font size adjustments for print */
+@media print {
+  body  { font-size: 10pt;      line-height: normal; max-width: 96%; }
+  h1    { font-size: 1.72em;    padding-top: 1.5em; } /* 1*1.2*1.2*1.2 */
+  h2    { font-size: 1.44em;    padding-top: 1.5em; } /* 1*1.2*1.2 */
+  h3    { font-size: 1.2em;     padding-top: 1.5em; } /* 1*1.2 */
+  h4    { font-size: 1em;       padding-top: 1.5em; }
+  h5, h6 { font-size: 1em;      margin: initial; padding: 0.5em 0 0.3em; }
+}
+/* Sourcecode margin in print, when there's no pilcrow */
+@media print {
+  .artwork,
+  .artwork > pre,
+  .sourcecode {
+    margin-bottom: 1em;
+  }
+}
+/* Avoid narrow tables forcing too narrow table captions, which may render badly */
+table {
+  min-width: 20em;
+}
+/* ol type a */
+ol.type-a { list-style-type: lower-alpha; }
+ol.type-A { list-style-type: upper-alpha; }
+ol.type-i { list-style-type: lower-roman; }
+ol.type-I { list-style-type: upper-roman; }
+/* Apply the print table and row borders in general, on request from the RPC,
+and increase the contrast between border and odd row background slightly */
+table {
+  border: 1px solid #ddd;
+}
+td {
+  border-top: 1px solid #ddd;
+}
+tr {
+  break-inside: avoid;
+}
+tr:nth-child(2n+1) > td {
+  background-color: #f8f8f8;
+}
+/* Use style rules to govern display of the TOC. */
+@media screen and (max-width: 1023px) {
+  #toc nav { display: none; }
+  #toc.active nav { display: block; }
+}
+/* Add support for keepWithNext */
+.keepWithNext {
+  break-after: avoid-page;
+  break-after: avoid-page;
+}
+/* Add support for keepWithPrevious */
+.keepWithPrevious {
+  break-before: avoid-page;
+}
+/* Change the approach to avoiding breaks inside artwork etc. */
+figure, pre, table, .artwork, .sourcecode  {
+  break-before: auto;
+  break-after: auto;
+}
+/* Avoid breaks between <dt> and <dd> */
+dl {
+  break-before: auto;
+  break-inside: auto;
+}
+dt {
+  break-before: auto;
+  break-after: avoid-page;
+}
+dd {
+  break-before: avoid-page;
+  break-after: auto;
+  orphans: 3;
+  widows: 3
+}
+span.break, dd.break {
+  margin-bottom: 0;
+  min-height: 0;
+  break-before: auto;
+  break-inside: auto;
+  break-after: auto;
+}
+/* Undo break-before ToC */
+@media print {
+  #toc {
+    break-before: auto;
+  }
+}
+/* Text in compact lists should not get extra bottom margin space,
+   since that would makes the list not compact */
+ul.compact p, .ulCompact p,
+ol.compact p, .olCompact p {
+ margin: 0;
+}
+/* But the list as a whole needs the extra space at the end */
+section ul.compact,
+section .ulCompact,
+section ol.compact,
+section .olCompact {
+  margin-bottom: 1em;                    /* same as p not within ul.compact etc. */
+}
+/* The tt and code background above interferes with for instance table cell
+   backgrounds.  Changed to something a bit more selective. */
+tt, code {
+  background-color: transparent;
+}
+p tt, p code, li tt, li code, dt tt, dt code {
+  background-color: #f8f8f8;
+}
+/* Tweak the pre margin -- 0px doesn't come out well */
+pre {
+   margin-top: 0.5px;
+}
+/* Tweak the compact list text */
+ul.compact, .ulCompact,
+ol.compact, .olCompact,
+dl.compact, .dlCompact {
+  line-height: normal;
+}
+/* Don't add top margin for nested lists */
+li > ul, li > ol, li > dl,
+dd > ul, dd > ol, dd > dl,
+dl > dd > dl {
+  margin-top: initial;
+}
+/* Elements that should not be rendered on the same line as a <dt> */
+/* This should match the element list in writer.text.TextWriter.render_dl() */
+dd > div.artwork:first-child,
+dd > aside:first-child,
+dd > blockquote:first-child,
+dd > figure:first-child,
+dd > ol:first-child,
+dd > div.sourcecode:first-child,
+dd > table:first-child,
+dd > ul:first-child {
+  clear: left;
+}
+/* fix for weird browser behaviour when <dd/> is empty */
+dt+dd:empty::before{
+  content: "\00a0";
+}
+/* Make paragraph spacing inside <li> smaller than in body text, to fit better within the list */
+li > p {
+  margin-bottom: 0.5em
+}
+/* Don't let p margin spill out from inside list items */
+li > p:last-of-type:only-child {
+  margin-bottom: 0;
+}
+</style>
+<link href="rfc-local.css" rel="stylesheet" type="text/css">
+<script type="application/javascript">async function addMetadata(){try{const e=document.styleSheets[0].cssRules;for(let t=0;t<e.length;t++)if(/#identifiers/.exec(e[t].selectorText)){const a=e[t].cssText.replace("#identifiers","#external-updates");document.styleSheets[0].insertRule(a,document.styleSheets[0].cssRules.length)}}catch(e){console.log(e)}const e=document.getElementById("external-metadata");if(e)try{var t,a="",o=function(e){const t=document.getElementsByTagName("meta");for(let a=0;a<t.length;a++)if(t[a].getAttribute("name")===e)return t[a].getAttribute("content");return""}("rfc.number");if(o){t="https://www.rfc-editor.org/rfc/rfc"+o+".json";try{const e=await fetch(t);a=await e.json()}catch(e){t=document.URL.indexOf("html")>=0?document.URL.replace(/html$/,"json"):document.URL+".json";const o=await fetch(t);a=await o.json()}}if(!a)return;e.style.display="block";const s="",d="https://datatracker.ietf.org/doc",n="https://datatracker.ietf.org/ipr/search",c="https://www.rfc-editor.org/info",l=a.doc_id.toLowerCase(),i=a.doc_id.slice(0,3).toLowerCase(),f=a.doc_id.slice(3).replace(/^0+/,""),u={status:"Status",obsoletes:"Obsoletes",obsoleted_by:"Obsoleted By",updates:"Updates",updated_by:"Updated By",see_also:"See Also",errata_url:"Errata"};let h="<dl style='overflow:hidden' id='external-updates'>";["status","obsoletes","obsoleted_by","updates","updated_by","see_also","errata_url"].forEach(e=>{if("status"==e){a[e]=a[e].toLowerCase();var t=a[e].split(" "),o=t.length,w="",p=1;for(let e=0;e<o;e++)p<o?w=w+r(t[e])+" ":w+=r(t[e]),p++;a[e]=w}else if("obsoletes"==e||"obsoleted_by"==e||"updates"==e||"updated_by"==e){var g,m="",b=1;g=a[e].length;for(let t=0;t<g;t++)a[e][t]&&(a[e][t]=String(a[e][t]).toLowerCase(),m=b<g?m+"<a href='"+s+"/rfc/".concat(a[e][t])+"'>"+a[e][t].slice(3)+"</a>, ":m+"<a href='"+s+"/rfc/".concat(a[e][t])+"'>"+a[e][t].slice(3)+"</a>",b++);a[e]=m}else if("see_also"==e){var y,L="",C=1;y=a[e].length;for(let t=0;t<y;t++)if(a[e][t]){a[e][t]=String(a[e][t]);var _=a[e][t].slice(0,3),v=a[e][t].slice(3).replace(/^0+/,"");L=C<y?"RFC"!=_?L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+_+" "+v+"</a>, ":L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+v+"</a>, ":"RFC"!=_?L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+_+" "+v+"</a>":L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+v+"</a>",C++}a[e]=L}else if("errata_url"==e){var R="";R=a[e]?R+"<a href='"+a[e]+"'>Errata exist</a> | <a href='"+d+"/"+l+"'>Datatracker</a>| <a href='"+n+"/?"+i+"="+f+"&submit="+i+"'>IPR</a> | <a href='"+c+"/"+l+"'>Info page</a>":"<a href='"+d+"/"+l+"'>Datatracker</a> | <a href='"+n+"/?"+i+"="+f+"&submit="+i+"'>IPR</a> | <a href='"+c+"/"+l+"'>Info page</a>",a[e]=R}""!=a[e]?"Errata"==u[e]?h+=`<dt>More info:</dt><dd>${a[e]}</dd>`:h+=`<dt>${u[e]}:</dt><dd>${a[e]}</dd>`:"Errata"==u[e]&&(h+=`<dt>More info:</dt><dd>${a[e]}</dd>`)}),h+="</dl>",e.innerHTML=h}catch(e){console.log(e)}else console.log("Could not locate metadata <div> element");function r(e){return e.charAt(0).toUpperCase()+e.slice(1)}}window.removeEventListener("load",addMetadata),window.addEventListener("load",addMetadata);</script>
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">On iBGP Full-Mesh Requirements</td>
+<td class="right">June 2026</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Rivadeneyra</td>
+<td class="center">Expires 17 December 2026</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">rtgwg (Routing Area Working Group)</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-rivadeneyra-no-ibgp-full-mesh-00</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2026-06-15" class="published">15 June 2026</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Informational</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2026-12-17">17 December 2026</time></dd>
+<dt class="label-authors">Author:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">J. M. Rivadeneyra, <span class="editor">Ed.</span>
+</div>
+<div class="org">Euskal Herriko Unibertsitatea (University of the Basque Country)</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">On iBGP Full-Mesh Requirements</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">A common misconception within the Internet community is that internal BGP (iBGP) strictly requires a full mesh or alternatives such as Route Reflectors. In reality, a full mesh is an architectural design choice driven by route visibility needs, rather than a protocol mandate. This document analyzes the historical origins of this misunderstanding and clarifies the specific scenarios—multihomed stub Autonomous Systems (ASes)— where an iBGP full mesh is unnecessary and operationally undesirable.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 17 December 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2026 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-requirements-language" class="internal xref">Requirements Language</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-origin-of-the-confusion" class="internal xref">Origin of the Confusion</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-when-ibgp-full-mesh-or-its-" class="internal xref">When iBGP Full Mesh (or Its Alternatives) Is Required</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-when-ibgp-full-mesh-is-not-" class="internal xref">When iBGP Full Mesh Is Not Required</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-multihomed-stub-as" class="internal xref">Multihomed Stub AS</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-edge-isp" class="internal xref">Edge ISP</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-operational-considerations" class="internal xref">Operational Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-applicability-of-ibgp-parti" class="internal xref">Applicability of iBGP partial-mesh design</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-convergence-behaviour" class="internal xref">Convergence Behaviour</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3">
+                <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="auto internal xref">5.3</a>.  <a href="#name-risk-of-misconfiguration" class="internal xref">Risk of Misconfiguration</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-conclusions" class="internal xref">Conclusions</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">It is widely believed that all BGP routers within an Autonomous System (AS) must be connected in a full iBGP mesh, or, when this becomes impractical, that route reflectors or confederations must be used. However, a full mesh is not always necessary, and in some scenarios it may even be undesirable.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">This document explains why the belief that iBGP full mesh is mandatory has become so widespread, and clarify when it is actually necessary to interconnect all BGP routers within an AS — and when it is better not to do so.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<div id="requirements-language">
+<section id="section-1.1">
+        <h3 id="name-requirements-language">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-requirements-language" class="section-name selfRef">Requirements Language</a>
+        </h3>
+<p id="section-1.1-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+"<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
+described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
+appear in all capitals, as shown here.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="origin-of-the-confusion">
+<section id="section-2">
+      <h2 id="name-origin-of-the-confusion">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-origin-of-the-confusion" class="section-name selfRef">Origin of the Confusion</a>
+      </h2>
+<p id="section-2-1">Much of the confusion surrounding the supposed requirement for a full iBGP mesh stems from the wording in early, now obsolete, versions of the BGP specification. In the first version of the protocol (<span>[<a href="#RFC1105" class="cite xref">RFC1105</a>]</span>), it was stated:<a href="#section-2-1" class="pilcrow">¶</a></p>
+<ul class="normal ulEmpty">
+<li class="normal ulEmpty" id="section-2-2.1">
+          <p id="section-2-2.1.1">"...in order to maintain consistent routing information, these gateways <span class="bcp14">MUST</span> have direct BGP sessions with each other (the BGP sessions should form a complete graph)."<a href="#section-2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-2-3">And further:<a href="#section-2-3" class="pilcrow">¶</a></p>
+<ul class="normal ulEmpty">
+<li class="normal ulEmpty" id="section-2-4.1">
+          <p id="section-2-4.1.1">“If the BGP UPDATE was received over the INTERNAL link, it is not propagated over any other INTERNAL link. This restriction is due to the fact that all BGP gateways within a single AS form a completely connected graph.”<a href="#section-2-4.1.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-2-5">It is reasonable to assume that the authors focused on transit providers, which, at that time (June 1989), were essentially the only networks deploying BGP. Subsequent versions of the protocol retained similar wording:<a href="#section-2-5" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2-6.1">
+          <p id="section-2-6.1.1">In <span>[<a href="#RFC1163" class="cite xref">RFC1163</a>]</span> and <span>[<a href="#RFC1267" class="cite xref">RFC1267</a>]</span>, the first statement was removed, but the second remained largely unchanged.<a href="#section-2-6.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-2-6.2">
+          <p id="section-2-6.2.1">In <span>[<a href="#RFC1654" class="cite xref">RFC1654</a>]</span> and <span>[<a href="#RFC1771" class="cite xref">RFC1771</a>]</span>, the wording evolved, but the idea of a full mesh requirement remained:<a href="#section-2-6.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<ul class="normal ulEmpty">
+<li class="normal ulEmpty" id="section-2-7.1">
+          <p id="section-2-7.1.1">“When a BGP speaker receives a new route from a BGP speaker in a neighboring autonomous system, it shall advertise that route to all other BGP speakers in its autonomous system by means of an UPDATE message.”<a href="#section-2-7.1.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-2-8">All these historical documents have since been obsoleted by the current standard, <span>[<a href="#RFC4271" class="cite xref">RFC4271</a>]</span>, from which any explicit mandate for a full mesh has been removed. The relevant rule now reads:<a href="#section-2-8" class="pilcrow">¶</a></p>
+<ul class="normal ulEmpty">
+<li class="normal ulEmpty" id="section-2-9.1">
+          <p id="section-2-9.1.1">“When a BGP speaker receives an UPDATE message from an internal peer, it <span class="bcp14">SHALL NOT</span> re-distribute that routing information to other internal peers (unless acting as a route reflector).”<a href="#section-2-9.1.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-2-10">Unfortunately, the RFCs defining alternatives to full mesh — route reflection (<span>[<a href="#RFC4456" class="cite xref">RFC4456</a>]</span>) and confederations (<span>[<a href="#RFC5065" class="cite xref">RFC5065</a>]</span>) — still contain legacy wording that can be interpreted as implying such a requirement. For example, <span>[<a href="#RFC4456" class="cite xref">RFC4456</a>]</span> states:<a href="#section-2-10" class="pilcrow">¶</a></p>
+<ul class="normal ulEmpty">
+<li class="normal ulEmpty" id="section-2-11.1">
+          <p id="section-2-11.1.1">"Typically, all BGP speakers within a single AS must be fully meshed..."<a href="#section-2-11.1.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-2-12">While this wording reflects common operational practice rather than a protocol constraint, subsequent passages reinforce the perception that a full mesh is mandatory. This is particularly evident in <span>[<a href="#RFC5065" class="cite xref">RFC5065</a>]</span>, which includes statements such as:<a href="#section-2-12" class="pilcrow">¶</a></p>
+<ul class="normal ulEmpty">
+<li class="normal ulEmpty" id="section-2-13.1">
+          <p id="section-2-13.1.1">"As originally defined, BGP requires that all BGP speakers within a single AS must be fully meshed."<a href="#section-2-13.1.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<ul class="normal ulEmpty">
+<li class="normal ulEmpty" id="section-2-14.1">
+          <p id="section-2-14.1.1">"[BGP-4] requires BGP speakers in the same autonomous system to establish a full mesh of TCP connections among all speakers for the purpose of exchanging exterior routing information."<a href="#section-2-14.1.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-2-15">These statements, although historically accurate regarding early design assumptions, perpetuate the misconception that a full mesh is a protocol requirement rather than a network design choice.<a href="#section-2-15" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="when-ibgp-full-mesh-or-its-alternatives-is-required">
+<section id="section-3">
+      <h2 id="name-when-ibgp-full-mesh-or-its-">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-when-ibgp-full-mesh-or-its-" class="section-name selfRef">When iBGP Full Mesh (or Its Alternatives) Is Required</a>
+      </h2>
+<p id="section-3-1">In most ASes, multiple border routers maintain eBGP sessions with external peers. The AS must then determine which border router should be used to reach each external destination. While multiple mechanisms exist to achieve this, iBGP is the most common solution.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">However, using iBGP introduces the risk of routing loops within the AS, since BGP’s loop detection mechanism (based on AS_PATH attribute) only works between autonomous systems, not within them.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-3">That's why, to prevent loops within the AS, BGP prohibits re-advertising routes learned via iBGP to other internal peers. Consequently, a full-mesh will be required between all BGP routers in the AS.  But this operational reasoning relies on a key assumption:<a href="#section-3-3" class="pilcrow">¶</a></p>
+<ul class="normal ulEmpty">
+<li class="normal ulEmpty" id="section-3-4.1">
+          <p id="section-3-4.1.1">Every BGP router in the AS is expected to have full visibility of all external routes.<a href="#section-3-4.1.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-3-5">While this assumption is valid for transit providers, it does not necessarily apply to stub ASes or edge ISPs. Therefore, it can be concluded that maintaining an iBGP full-mesh is a requirement only for transit ASes.<a href="#section-3-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="when-ibgp-full-mesh-is-not-required">
+<section id="section-4">
+      <h2 id="name-when-ibgp-full-mesh-is-not-">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-when-ibgp-full-mesh-is-not-" class="section-name selfRef">When iBGP Full Mesh Is Not Required</a>
+      </h2>
+<div id="multihomed-stub-as">
+<section id="section-4.1">
+        <h3 id="name-multihomed-stub-as">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-multihomed-stub-as" class="section-name selfRef">Multihomed Stub AS</a>
+        </h3>
+<p id="section-4.1-1">Consider a multihomed stub AS with two border routers (BR1 and BR2), each connected to a different upstream ISP (Figure 1). Internally, the AS consists of three campus networks, each with an internal core router (IR1, IR2, IR3).<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<span id="name-figure-1-as-stub-multihomed"></span><div id="fig-stub">
+<figure id="figure-1">
+          <div class="alignLeft art-image/svg art-text artwork" id="section-4.1-2.1">
+<pre>
+&lt;svg width="21cm" height="22cm" viewBox="609 170 408 421" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
+  &lt;g id="Background"&gt;
+    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="893.4" y="366.96"&gt;
+      &lt;tspan x="893.4" y="366.96"&gt;BR2&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;g&gt;
+      &lt;rect style="fill: #ffffff; fill-opacity: 1; stroke: none" x="721.6" y="181.747" width="49.8" height="26.7287"/&gt;
+      &lt;text font-size="22.9616" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="721.6" y="203.06"&gt;
+        &lt;tspan x="721.6" y="203.06"&gt;ISP1&lt;/tspan&gt;
+      &lt;/text&gt;
+    &lt;/g&gt;
+    &lt;text font-size="22.9616" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="609.6" y="407.614"&gt;
+      &lt;tspan x="609.6" y="407.614"&gt;STUB&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke-dasharray: 2; stroke: #000000" x1="750" y1="230" x2="750.986" y2="343.994"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke-dasharray: 2; stroke: #000000" x1="918" y1="228" x2="916.508" y2="342.194"/&gt;
+    &lt;text font-size="14.6078" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="705" y="267"&gt;
+      &lt;tspan x="705" y="267"&gt;Ebgp&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;text font-size="14.6078" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="927.6" y="269.86"&gt;
+      &lt;tspan x="927.6" y="269.86"&gt;Ebgp&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="732" y1="379" x2="635" y2="490"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="927" y1="379" x2="987.514" y2="490.576"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="754" y1="384" x2="815" y2="558"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="905" y1="384" x2="834.69" y2="560.01"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="777.444" y1="379.61" x2="971.622" y2="494.314"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="888.478" y1="376.494" x2="671" y2="490"/&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="698" y="172" width="106" height="49" rx="0" ry="0"/&gt;
+    &lt;g&gt;
+      &lt;rect style="fill: #ffffff; fill-opacity: 1; stroke: none" x="888.813" y="179.434" width="49.8" height="26.7287"/&gt;
+      &lt;text font-size="22.9616" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="888.813" y="200.747"&gt;
+        &lt;tspan x="888.813" y="200.747"&gt;ISP2&lt;/tspan&gt;
+      &lt;/text&gt;
+    &lt;/g&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="861.912" y="172.375" width="106" height="49" rx="0" ry="0"/&gt;
+    &lt;text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="914.912" y="196.875"&gt;
+      &lt;tspan x="914.912" y="196.875"&gt;&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="882" y="347" width="63" height="29" rx="0" ry="0"/&gt;
+    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="731" y="367.26"&gt;
+      &lt;tspan x="731" y="367.26"&gt;BR1&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="719.6" y="347.3" width="63" height="29" rx="0" ry="0"/&gt;
+    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="809.6" y="581.56"&gt;
+      &lt;tspan x="809.6" y="581.56"&gt;IR2&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="798.2" y="561.6" width="63" height="29" rx="0" ry="0"/&gt;
+    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="634.2" y="513.86"&gt;
+      &lt;tspan x="634.2" y="513.86"&gt;IR1&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="622.8" y="493.9" width="63" height="29" rx="0" ry="0"/&gt;
+    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="964.8" y="516.16"&gt;
+      &lt;tspan x="964.8" y="516.16"&gt;IR3&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="953.4" y="496.2" width="63" height="29" rx="0" ry="0"/&gt;
+  &lt;/g&gt;
+&lt;/svg&gt;
+</pre>
+</div>
+<figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
+<a href="#name-figure-1-as-stub-multihomed" class="selfRef">Figure 1: AS stub multihomed without an iBGP full mesh</a>
+          </figcaption></figure>
+</div>
+<p id="section-4.1-3">The figure shows two routers connected by a solid line when there is an iBGP session between them. As can be seen, in STUB there is no full iBGP mesh between all the BGP routers; there is no iBGP session between BR1 and BR2, nor between IRs.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.1-4">Are those iBGP sessions necessary?<a href="#section-4.1-4" class="pilcrow">¶</a></p>
+<p id="section-4.1-5">In a stub AS that does not provide transit between its upstream providers, inbound traffic entering through one border router must always be forwarded toward internal core routers, never toward the other border router. In the event of an upstream link failure, internal core routers will withdraw the BGP paths associated with the affected BR and shift outbound traffic toward the remaining operational BR. This mechanism renders it unnecessary for border routers to be aware of alternative external BGP paths held by other internal border routers.<a href="#section-4.1-5" class="pilcrow">¶</a></p>
+<p id="section-4.1-6">Similarly, outbound traffic flows strictly from internal core routers to border routers, never between internal core routers.<a href="#section-4.1-6" class="pilcrow">¶</a></p>
+<p id="section-4.1-7">Consequently, regarding iBGP topology:<a href="#section-4.1-7" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.1-8.1">
+            <p id="section-4.1-8.1.1">Border routers only need to learn internal destinations to export towards ISPs. They do not require visibility into external routes learned by other border routers since transit traffic is prohibited. Thus, an iBGP session between BR1 and BR2 is unnecessary.<a href="#section-4.1-8.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.1-8.2">
+            <p id="section-4.1-8.2.1">Internal core routers (IRs) must learn external routes imported by both border routers (BRs). However, they have no operational need to exchange routes with each other; hence, iBGP sessions between IRs are unnecessary.<a href="#section-4.1-8.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-4.1-9">Furthermore, establishing an iBGP session between BR1 and BR2 noticeably increases the operational risk of accidentally re-advertising external routes, which could inadvertently turn the stub AS into an unintended transit provider.<a href="#section-4.1-9" class="pilcrow">¶</a></p>
+<p id="section-4.1-10">This example shows that in multihomed stub ASes, an iBGP full mesh is not strictly necessary and can be operationally detrimental.<a href="#section-4.1-10" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="edge-isp">
+<section id="section-4.2">
+        <h3 id="name-edge-isp">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-edge-isp" class="section-name selfRef">Edge ISP</a>
+        </h3>
+<p id="section-4.2-1">A similar situation can arise in an edge ISP. This is illustrated in Figure 2, which depicts an ISP featuring:<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.2-2.1">
+            <p id="section-4.2-2.1.1">Two upstream connections (Up1, Up2),<a href="#section-4.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.2-2.2">
+            <p id="section-4.2-2.2.1">Three Points of Presence (PoPs) serving downstream customers,<a href="#section-4.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.2-2.3">
+            <p id="section-4.2-2.3.1">One peering router (P) connected to an Internet Exchange Point (IXP).<a href="#section-4.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<span id="name-figure-2-edge-isp-without-a"></span><div id="fig-edge">
+<figure id="figure-2">
+          <div class="alignLeft art-image/svg+xml art-text artwork" id="section-4.2-3.1">
+<pre>
+
+   &lt;svg width="29cm" height="22cm" viewBox="399 170 570 421" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
+  &lt;g id="Background"&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="861.912" y="173.988" width="106" height="49" rx="0" ry="0"/&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="698" y="172" width="106" height="49" rx="0" ry="0"/&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="684.037" y="513.287" width="63" height="29" rx="0" ry="0"/&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="903.4" y="514.2" width="63" height="29" rx="0" ry="0"/&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="798.2" y="561.6" width="63" height="29" rx="0" ry="0"/&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="882" y="347" width="63" height="29" rx="0" ry="0"/&gt;
+    &lt;text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="1367.24" y="275.322"&gt;
+      &lt;tspan x="1367.24" y="275.322"&gt;&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;g&gt;
+      &lt;rect style="fill: #ffffff; fill-opacity: 1; stroke: none" x="737.6" y="181.747" width="28.65" height="26.7287"/&gt;
+      &lt;text font-size="22.9616" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="737.6" y="203.06"&gt;
+        &lt;tspan x="737.6" y="203.06"&gt;T1&lt;/tspan&gt;
+      &lt;/text&gt;
+    &lt;/g&gt;
+    &lt;text font-size="22.9616" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="650.6" y="381.614"&gt;
+      &lt;tspan x="650.6" y="381.614"&gt;ISP&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke-dasharray: 2; stroke: #000000" x1="750" y1="230" x2="750.986" y2="343.994"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke-dasharray: 2; stroke: #000000" x1="918" y1="228" x2="916.508" y2="342.194"/&gt;
+    &lt;text font-size="14.6078" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="705" y="267"&gt;
+      &lt;tspan x="705" y="267"&gt;Ebgp&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;text font-size="14.6078" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="927.6" y="269.86"&gt;
+      &lt;tspan x="927.6" y="269.86"&gt;Ebgp&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="732" y1="379" x2="731" y2="509"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="927" y1="379" x2="927" y2="508"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="753.462" y1="380.237" x2="823.462" y2="555.237"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="908.664" y1="379.069" x2="834.69" y2="560.01"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="777.444" y1="379.61" x2="909" y2="509"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="888.478" y1="376.494" x2="748" y2="508"/&gt;
+    &lt;g&gt;
+      &lt;rect style="fill: #ffffff; fill-opacity: 1; stroke: none" x="905.775" y="183.087" width="28.65" height="26.7287"/&gt;
+      &lt;text font-size="22.9616" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="905.775" y="204.4"&gt;
+        &lt;tspan x="905.775" y="204.4"&gt;T2&lt;/tspan&gt;
+      &lt;/text&gt;
+    &lt;/g&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="721.75" y="344.075" width="63" height="29" rx="0" ry="0"/&gt;
+    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="736.913" y="362.422"&gt;
+      &lt;tspan x="736.913" y="362.422"&gt;Up1&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="892.6" y="367.06"&gt;
+      &lt;tspan x="892.6" y="367.06"&gt;Up2&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="803.6" y="580.06"&gt;
+      &lt;tspan x="803.6" y="580.06"&gt;PoP2&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="689.362" y="533.822"&gt;
+      &lt;tspan x="689.362" y="533.822"&gt;PoP1&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="907.6" y="533.56"&gt;
+      &lt;tspan x="907.6" y="533.56"&gt;PoP3&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="621.6" y="411.3" width="63" height="29" rx="0" ry="0"/&gt;
+    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="648.1" y="430.8"&gt;
+      &lt;tspan x="648.1" y="430.8"&gt;P&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;rect style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="400.6" y="413.3" width="63" height="29" rx="0" ry="0"/&gt;
+    &lt;text font-size="16.9785" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:700" x="419.1" y="432.8"&gt;
+      &lt;tspan x="419.1" y="432.8"&gt;IXP&lt;/tspan&gt;
+    &lt;/text&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="688.608" y1="435.308" x2="718" y2="510"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="691.208" y1="425.608" x2="812" y2="559"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="689" y1="416" x2="898.808" y2="517.908"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="898" y1="529" x2="751.8" y2="529.4"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="723.008" y1="548.508" x2="793" y2="581"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="933.608" y1="546.808" x2="864" y2="583"/&gt;
+    &lt;line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke-dasharray: 4; stroke: #000000" x1="620.6" y1="425.8" x2="466" y2="427"/&gt;
+    &lt;text font-size="14.6078" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="510" y="418"&gt;
+      &lt;tspan x="510" y="418"&gt;n x Ebgp&lt;/tspan&gt;
+    &lt;/text&gt;
+  &lt;/g&gt;
+&lt;/svg&gt;
+
+</pre>
+</div>
+<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<a href="#name-figure-2-edge-isp-without-a" class="selfRef">Figure 2: Edge ISP without an iBGP full mesh</a>
+          </figcaption></figure>
+</div>
+<p id="section-4.2-4">Such an ISP must conform to the following transit rules:<a href="#section-4.2-4" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-4.2-5">
+<li id="section-4.2-5.1">
+            <p id="section-4.2-5.1.1">It <span class="bcp14">MUST NOT</span> provide transit between upstream providers.<a href="#section-4.2-5.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-4.2-5.2">
+            <p id="section-4.2-5.2.1">It <span class="bcp14">MUST NOT</span> provide transit between peers and upstream providers (in either direction).<a href="#section-4.2-5.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-4.2-5.3">
+            <p id="section-4.2-5.3.1">It <span class="bcp14">MUST</span> only provide transit to its downstream customers.<a href="#section-4.2-5.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-4.2-6">Under these constraints, the routing requirements dictate that:<a href="#section-4.2-6" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.2-7.1">
+            <p id="section-4.2-7.1.1">PoP routers must maintain full visibility of routes from upstreams (via Up1/Up2), peering points (via P), and other PoPs.<a href="#section-4.2-7.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.2-7.2">
+            <p id="section-4.2-7.2.1">Upstream routers (Up1/Up2) and the peering router (P) only need to learn customer routes via the PoPs, and external routes via eBGP. They do not require visibility into each other's external routes.<a href="#section-4.2-7.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-4.2-8">Therefore, the optimized iBGP architecture establishes that:<a href="#section-4.2-8" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.2-9.1">
+            <p id="section-4.2-9.1.1">PoP routers maintain iBGP sessions with all other BGP routers in the AS.<a href="#section-4.2-9.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.2-9.2">
+            <p id="section-4.2-9.2.1">Up1, Up2, and P maintain iBGP sessions exclusively with the PoP routers, but not among themselves.<a href="#section-4.2-9.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-4.2-10">This design (see Figure 2) is simpler than a full mesh and reduces operational risk, particularly the risk of unintended transit between upstreams or peers.<a href="#section-4.2-10" class="pilcrow">¶</a></p>
+<p id="section-4.2-11">As in the stub AS case, the failure of an upstream or peering link does not require alternative path visibility at the affected border router, because the PoP routers will autonomously stop forwarding traffic toward it once the failure triggers a route withdrawal.<a href="#section-4.2-11" class="pilcrow">¶</a></p>
+<p id="section-4.2-12">Note that adopting a design based on Route Reflectors (RRs) can further simplify the iBGP topology, even for relatively small edge ISPs. For example, in the scenario shown in Figure 2, utilizing a central route reflector with iBGP sessions to all other routers in the AS would require only six iBGP sessions. This contrasts with the twelve sessions required by the partial-mesh design and the twenty-one sessions demanded by a traditional full mesh. Furthermore, with an adequate community-based configuration, the same isolation between router groups achieved by removing unnecessary iBGP sessions can be replicated within a route-reflector architecture.<a href="#section-4.2-12" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="operational-considerations">
+<section id="section-5">
+      <h2 id="name-operational-considerations">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-operational-considerations" class="section-name selfRef">Operational Considerations</a>
+      </h2>
+<div id="applicability-of-ibgp-partial-mesh-design">
+<section id="section-5.1">
+        <h3 id="name-applicability-of-ibgp-parti">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-applicability-of-ibgp-parti" class="section-name selfRef">Applicability of iBGP partial-mesh design</a>
+        </h3>
+<p id="section-5.1-1">While deploying an iBGP partial mesh is technically feasible in any AS that does not require full route visibility across all internal BGP speakers (i.e., non-transit ASes), its implementation is only recommended for stub ASes. For edge ISPs, although the partial-mesh option is viable and superior to a full mesh, utilizing route reflectors generally remains the best approach.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2">The use of an iBGP partial mesh in stub ASes is not a novel technique, but it has rarely been documented (for example, see the case described in Figure 5.21 in <span>[<a href="#Zhang-Bartell" class="cite xref">Zhang-Bartell</a>]</span>. Currently, the dominant view in available documentation is that it is unacceptable to have multiple BGP routers in the same AS that are not connected via iBGP, even though it is common practice in stub ASes to forgo iBGP sessions between border routers for security and simplicity reasons.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="convergence-behaviour">
+<section id="section-5.2">
+        <h3 id="name-convergence-behaviour">
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-convergence-behaviour" class="section-name selfRef">Convergence Behaviour</a>
+        </h3>
+<p id="section-5.2-1">In designs where border routers (BRs) do not maintain iBGP sessions between them, internal core routers (IRs) act as the focal points for route visibility and path selection. In such a design, in the event of an upstream failure affecting a specific BR, a transient time lag occurs between the detection of the link failure by the BR and the moment the IRs cease forwarding outbound traffic to that BR. In a traditional full-mesh or RR topology, traffic arriving at the affected BR during this window is dynamically rerouted to alternative BRs via internal iBGP paths. This convergence behavior could be considered an operational advantage of full-mesh or RR architectures over a partial mesh. However:<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5.2-2.1">
+            <p id="section-5.2-2.1.1">If a default backup route (as a floating static route) is configured on the affected BR, the behavior aligns with a full-mesh/RR topology;  the BR immediately redirects outbound traffic toward the alternate BR upon losing its upstream link.<a href="#section-5.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-5.2-2.2">
+            <p id="section-5.2-2.2.1">In any case, the time lag between link failure detection at the BR and route convergence at the IRs is minimal —on the order of milliseconds— rendering it insignificant in most enterprise and edge scenarios.  This is because the BR will immediately send route withdraws to the IRs via iBGP, since the MRAI (Minimum Route Advertisement Interval) for iBGP is 0 seconds by default across modern routing platforms.<a href="#section-5.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="risk-of-misconfiguration">
+<section id="section-5.3">
+        <h3 id="name-risk-of-misconfiguration">
+<a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-risk-of-misconfiguration" class="section-name selfRef">Risk of Misconfiguration</a>
+        </h3>
+<p id="section-5.3-1">A main argument in favour of avoiding unnecessary iBGP sessions is the reduction of potential misconfiguration scenarios (e.g. unintended transit). However, topological simplification should be viewed as a complementary defense-in-depth measure, and not as a complete substitute for rigorous routing policy design enforced by well-defined prefix filters and export rules.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="conclusions">
+<section id="section-6">
+      <h2 id="name-conclusions">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-conclusions" class="section-name selfRef">Conclusions</a>
+      </h2>
+<ul class="normal">
+<li class="normal" id="section-6-1.1">
+          <p id="section-6-1.1.1">iBGP full mesh is not a protocol requirement, but a design choice driven by the need for route visibility and operational considerations.<a href="#section-6-1.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-1.2">
+          <p id="section-6-1.2.1">iBGP full mesh is only strictly necessary among routers that must have full visibility of all external routes. This is, in transit ASes.<a href="#section-6-1.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-1.3">
+          <p id="section-6-1.3.1">In multihomed stub ASes, deploying an iBGP full mesh violates the KISS principle (<span>[<a href="#RFC1958" class="cite xref">RFC1958</a>]</span>) and introduces unnecessary operational risk.<a href="#section-6-1.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-1.4">
+          <p id="section-6-1.4.1">In edge ISPs, an iBGP partial mesh offers a more robust deployment model than a full mesh, though route reflection remains the best practice.<a href="#section-6-1.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-1.5">
+          <p id="section-6-1.5.1">The legacy assumption of a mandatory full-mesh design found in several foundational RFCs dates back to an era when transit providers constituted the vast majority of BGP deployments. Given the modern internet landscape, where multihoming and BGP utilization are standard requirements for enterprises, clarifying some RFCs would benefit the community, preventing the perpetuation of this architectural misconception about iBGP full-mesh requirement.<a href="#section-6-1.5.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+</section>
+</div>
+<div id="IANA">
+<section id="section-7">
+      <h2 id="name-iana-considerations">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<p id="section-7-1">This memo includes no request to IANA.<a href="#section-7-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="Security">
+<section id="section-8">
+      <h2 id="name-security-considerations">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-8-1">This document does not modify the underlying security properties of any existing Internet protocol. However, adherence to the Simplicity Principle (<span>[<a href="#RFC1958" class="cite xref">RFC1958</a>]</span>) directly enhances the stability and security of network architectures. Minimizing unnecessary iBGP sessions explicitly reduces the internal configuration surface, thereby mitigating risks associated with human error, such as accidental transit provisioning.<a href="#section-8-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="sec-combined-references">
+<section id="section-9">
+      <h2 id="name-references">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<div id="sec-normative-references">
+<section id="section-9.1">
+        <h3 id="name-normative-references">
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="RFC2119">[RFC2119]</dt>
+        <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8174">[RFC8174]</dt>
+      <dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-9.2">
+        <h3 id="name-informative-references">
+<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="RFC1105">[RFC1105]</dt>
+        <dd>
+<span class="refAuthor">Lougheed, K.</span> and <span class="refAuthor">Y. Rekhter</span>, <span class="refTitle">"Border Gateway Protocol (BGP)"</span>, <span class="seriesInfo">RFC 1105</span>, <span class="seriesInfo">DOI 10.17487/RFC1105</span>, <time datetime="1989-06" class="refDate">June 1989</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc1105">https://www.rfc-editor.org/rfc/rfc1105</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC1163">[RFC1163]</dt>
+        <dd>
+<span class="refAuthor">Lougheed, K.</span> and <span class="refAuthor">Y. Rekhter</span>, <span class="refTitle">"Border Gateway Protocol (BGP)"</span>, <span class="seriesInfo">RFC 1163</span>, <span class="seriesInfo">DOI 10.17487/RFC1163</span>, <time datetime="1990-06" class="refDate">June 1990</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc1163">https://www.rfc-editor.org/rfc/rfc1163</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC1267">[RFC1267]</dt>
+        <dd>
+<span class="refAuthor">Lougheed, K.</span> and <span class="refAuthor">Y. Rekhter</span>, <span class="refTitle">"Border Gateway Protocol 3 (BGP-3)"</span>, <span class="seriesInfo">RFC 1267</span>, <span class="seriesInfo">DOI 10.17487/RFC1267</span>, <time datetime="1991-10" class="refDate">October 1991</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc1267">https://www.rfc-editor.org/rfc/rfc1267</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC1654">[RFC1654]</dt>
+        <dd>
+<span class="refAuthor">Rekhter, Y., Ed.</span> and <span class="refAuthor">T. Li, Ed.</span>, <span class="refTitle">"A Border Gateway Protocol 4 (BGP-4)"</span>, <span class="seriesInfo">RFC 1654</span>, <span class="seriesInfo">DOI 10.17487/RFC1654</span>, <time datetime="1994-07" class="refDate">July 1994</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc1654">https://www.rfc-editor.org/rfc/rfc1654</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC1771">[RFC1771]</dt>
+        <dd>
+<span class="refAuthor">Rekhter, Y.</span> and <span class="refAuthor">T. Li</span>, <span class="refTitle">"A Border Gateway Protocol 4 (BGP-4)"</span>, <span class="seriesInfo">RFC 1771</span>, <span class="seriesInfo">DOI 10.17487/RFC1771</span>, <time datetime="1995-03" class="refDate">March 1995</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc1771">https://www.rfc-editor.org/rfc/rfc1771</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC1958">[RFC1958]</dt>
+        <dd>
+<span class="refAuthor">Carpenter, B., Ed.</span>, <span class="refTitle">"Architectural Principles of the Internet"</span>, <span class="seriesInfo">RFC 1958</span>, <span class="seriesInfo">DOI 10.17487/RFC1958</span>, <time datetime="1996-06" class="refDate">June 1996</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc1958">https://www.rfc-editor.org/rfc/rfc1958</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC4271">[RFC4271]</dt>
+        <dd>
+<span class="refAuthor">Rekhter, Y., Ed.</span>, <span class="refAuthor">Li, T., Ed.</span>, and <span class="refAuthor">S. Hares, Ed.</span>, <span class="refTitle">"A Border Gateway Protocol 4 (BGP-4)"</span>, <span class="seriesInfo">RFC 4271</span>, <span class="seriesInfo">DOI 10.17487/RFC4271</span>, <time datetime="2006-01" class="refDate">January 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4271">https://www.rfc-editor.org/rfc/rfc4271</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC4456">[RFC4456]</dt>
+        <dd>
+<span class="refAuthor">Bates, T.</span>, <span class="refAuthor">Chen, E.</span>, and <span class="refAuthor">R. Chandra</span>, <span class="refTitle">"BGP Route Reflection: An Alternative to Full Mesh Internal BGP (IBGP)"</span>, <span class="seriesInfo">RFC 4456</span>, <span class="seriesInfo">DOI 10.17487/RFC4456</span>, <time datetime="2006-04" class="refDate">April 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4456">https://www.rfc-editor.org/rfc/rfc4456</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5065">[RFC5065]</dt>
+        <dd>
+<span class="refAuthor">Traina, P.</span>, <span class="refAuthor">McPherson, D.</span>, and <span class="refAuthor">J. Scudder</span>, <span class="refTitle">"Autonomous System Confederations for BGP"</span>, <span class="seriesInfo">RFC 5065</span>, <span class="seriesInfo">DOI 10.17487/RFC5065</span>, <time datetime="2007-08" class="refDate">August 2007</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5065">https://www.rfc-editor.org/rfc/rfc5065</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="Zhang-Bartell">[Zhang-Bartell]</dt>
+      <dd>
+<span class="refAuthor">Zhang, R.</span> and <span class="refAuthor">M. Bartell</span>, <span class="refTitle">"BGP Design and Implementation"</span>, <span class="seriesInfo">Cisco Press, ISBN 9781587058646</span>, <span>&lt;<a href="https://www.oreilly.com/library/view/bgp-design-and/9781587058646/">https://www.oreilly.com/library/view/bgp-design-and/9781587058646/</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="Acknowledgements">
+<section id="appendix-A">
+      <h2 id="name-acknowledgements">
+<a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
+      </h2>
+<p id="appendix-A-1">This document uses extracts from templates written by
+<span class="contact-name">Pekka Savola</span>, <span class="contact-name">Elwyn Davies</span> and
+<span class="contact-name">Henrik Levkowetz</span>.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-B">
+      <h2 id="name-authors-address">
+<a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Jose Maria Rivadeneyra (<span class="role">editor</span>)</span></div>
+<div dir="auto" class="left"><span class="org">Euskal Herriko Unibertsitatea (University of the Basque Country)</span></div>
+<div dir="auto" class="left"><span class="street-address">Ibaetako Campusa</span></div>
+<div dir="auto" class="left"><span class="locality">Donostia - Gipuzkoa - Basque Country</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:jm.rivadeneyra@ehu.eus" class="email">jm.rivadeneyra@ehu.eus</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
